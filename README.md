@@ -12,13 +12,13 @@ By asking the user for the basic ingredients: a starting point, a function to ch
 
 Gradient descent for finding the analytic center of a polyhedron.
 
-![alt tag](https://github.com/RJTK/convex_optimize/tree/master/images/analytic_center_gradient_descent.png)
+![alt tag](https://github.com/RJTK/convex_optimize/blob/master/images/analytic_center_gradient_descent.png)
 
 Newton's method for the same problem as above.  There is no quadratic convergence in this case, which I believe is due to the fact that the Hessian (involving 1/x terms) is not globally Lipschitz.
 
-![alt tag](https://github.com/RJTK/convex_optimize/tree/master/images/analytic_center_newton.png)
+![alt tag](https://github.com/RJTK/convex_optimize/blob/master/images/analytic_center_newton.png)
 
 This problem is very similar as above, except there is a linear cost <c, x> in addition to the log barrier log(b - Ax).  In this case, we get quadratic convergence.
 
-![alt tag](https://github.com/RJTK/convex_optimize/tree/master/images/LP_barrier.png)
+![alt tag](https://github.com/RJTK/convex_optimize/blob/master/images/LP_barrier.png)
 
