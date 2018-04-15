@@ -1,4 +1,4 @@
-This repo contains some implementations for doing (mostly convex) optimization.  The work is done mostly for my own learning purposes, but the examples here could conceivably be useful for others.
+This repo contains some implementations for doing (mostly convex) optimization.  The work is done mostly for my own learning purposes, but the examples here could conceivably be useful for others.  I may add some more interesting application examples and/or interior point methods in the future.
 
 The basic descent algorithm for unconstrained minimization of a function f, with domain D, is simply
 
