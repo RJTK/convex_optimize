@@ -441,7 +441,120 @@ def example_newton002():
     return
 
 
+def example_smooth_huber():
+    '''
+    Robust regression with a smoothed approximation to the Huber
+    loss function:
+
+    h_d(a) = d**2 * [sqrt(1 + (a / d)**2) - 1]
+
+    We can do robust regression with just an unconstrained minimization
+    algorithm.
+
+    The data generating model is y = <X, beta> + n + ot
+
+    where n ~ Normal, ot ~ Pareto.
+    '''
+    N = 100  # Number of data samples
+    m = 3  # number of regression coefficients (polynomial degree)
+
+    # Smooth function y = f(x)
+    def y_curve(beta, X):
+        y = np.dot(X, beta)
+        return y
+
+    # Noisy data generator
+    def y_data(beta):
+        # Data generator y = Xb + n + ot
+        # x ~ U; X = [x, x**2, ..., x**m]
+        # n ~ N  # Well behaved noise
+        # ot ~ pareto  # Fat tailed noise
+        # x = np.random.normal(size=N)
+        x = np.random.uniform(-3, 3, size=N)
+        X = np.hstack((x[:, None]**k for k in range(1, m + 1)))
+        y = (y_curve(beta, X) +
+             np.random.normal(loc=0.0, scale=np.sqrt(0.5), size=N) +
+             np.random.pareto(a=0.9, size=N))
+        return X, y
+
+    # Generate some data
+    beta_true = [1.3, -2.4, 2.1]
+    X, y = y_data(beta_true)
+
+    def huber(u, d):
+        return d**2 * (np.sqrt(1 + (u / d)**2) - 1)
+
+    def grad_huber(u, d):
+        return u / np.sqrt(1 + (u / d)**2)
+
+    def psi(w, d):
+        return np.sum(huber(w, d))
+
+    def grad_psi(w, d):
+        return grad_huber(w, d)
+
+    def f(beta, d):
+        return (1. / N) * psi(y - np.dot(X, beta), d)
+
+    def grad_f(beta, d):
+        return -(1. / N) * np.dot(X.T, grad_psi(y - np.dot(X, beta), d))
+
+    def f_dd_closure(d):
+        def f_dd(beta):
+            return -grad_f(beta, d)
+        return f_dd
+
+    def stopping_criteria_closure(d, eps=1e-5):
+        def stopping_criteria(beta):
+            if np.linalg.norm(grad_f(beta, d), ord=np.inf) < eps:
+                return True
+            else:
+                return False
+        return stopping_criteria
+
+    def line_search_closure(d):
+        ASL = AdaptiveLineSearch(lambda x: grad_f(x, d))
+
+        def line_search(x, x_dd):
+            return ASL.line_search(x, x_dd, lambda t: f(x + t * x_dd, d))
+        return line_search
+
+    beta0 = np.ones(m)
+    beta_lstsq = np.linalg.solve(np.dot(X.T, X), np.dot(X.T, y))
+    x = X[:, 0]  # Input data without extra features
+    plt.scatter(x, y, alpha=0.5, marker='o', label='Data')
+
+    x_plt = np.linspace(np.min(x), np.max(x), 1000)
+    X_plt = np.hstack((x_plt[:, None]**k for k in range(1, m + 1)))
+    y_true = y_curve(beta_true, X_plt)
+    y_lstsq = y_curve(beta_lstsq, X_plt)
+    plt.plot(x_plt, y_true, linewidth=2, linestyle='--', color='k',
+             label='True Curve')
+    plt.plot(x_plt, y_lstsq, linewidth=2, color='g', label='LstSq Estimate')
+
+    d = 1.0
+    stopping_criteria = stopping_criteria_closure(d)
+    line_search = line_search_closure(d)
+    f_dd = f_dd_closure(d)
+    beta_star, n_iter, success = steepest_descent(beta0, f_dd,
+                                                  stopping_criteria,
+                                                  line_search,
+                                                  maxiter=2000)
+
+    y_hat = y_curve(beta_star, X_plt)
+    plt.plot(x_plt, y_hat, linewidth=2, color='r',
+             label='Robust Estimate $(\delta = %0.1f)$' % d)
+    plt.legend()
+    plt.xlabel(r'$x$')
+    plt.ylabel(r'$f(x)$')
+    plt.title('Huber Robust Regression')
+    plt.savefig('./images/huber_robust.png')
+    plt.show()
+    return
+
+
 if __name__ == '__main__':
     example_gradient_descent001()
     example_newton001()
     example_newton002()
+    example_smooth_huber()
