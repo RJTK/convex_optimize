@@ -473,8 +473,8 @@ def example_smooth_huber():
         x = np.random.uniform(-3, 3, size=N)
         X = np.hstack((x[:, None]**k for k in range(1, m + 1)))
         y = (y_curve(beta, X) +
-             np.random.normal(loc=0.0, scale=np.sqrt(0.5), size=N) +
-             np.random.pareto(a=0.9, size=N))
+             np.random.normal(loc=0.0, scale=np.sqrt(15), size=N) +
+             3 * np.random.pareto(a=1.1, size=N))
         return X, y
 
     # Generate some data
