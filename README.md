@@ -26,6 +26,6 @@ This problem is very similar as above, except there is a linear cost <c, x> in a
 
 ![alt tag](https://github.com/RJTK/convex_optimize/blob/master/images/LP_barrier.png)
 
-Here is a robust regression example.  We can use a smooth approximation of the Huber loss function and then use gradient descent to fit a robust regression model.
+Here is a robust regression example.  We can use a smooth approximation of the Huber loss function (see https://en.wikipedia.org/wiki/Huber_loss) and then use gradient descent to fit a robust regression model.
 
 ![alt tag](https://github.com/RJTK/convex_optimize/blob/master/images/huber_robust.png)
